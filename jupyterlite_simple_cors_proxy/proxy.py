@@ -2,25 +2,8 @@
 from urllib.parse import urlencode, quote
 import requests
 
-class ProxyResponse:
-    def __init__(self, content):
-        self._content = content
 
-    @property
-    def text(self):
-        return self._content
-
-    def json(self):
-        import json
-
-        return json.loads(self._content)
-
-    @property
-    def content(self):
-        return self._content.encode()
-
-
-def cors_proxy(url, params=None):
+def cors_proxy_get(url, params=None):
     """
     CORS proxy for GET resources with requests-like response.
 
@@ -29,7 +12,7 @@ def cors_proxy(url, params=None):
         params (dict, optional): Query parameters to include
 
     Returns:
-        ProxyResponse: A response object with .text, .json(), and .content methods
+        A requests response object.
     """
     if params:
         full_url = f"{url}?{urlencode(params)}"
@@ -37,5 +20,17 @@ def cors_proxy(url, params=None):
         full_url = url
 
     proxy_url = f"https://corsproxy.io/?{quote(full_url)}"
-    response = requests.get(proxy_url).content.decode().strip()
-    return ProxyResponse(response)
+
+    # Do a simple requests get and
+    # just pass through the entire response object
+    return requests.get(proxy_url)
+
+def robust_get_request(url, params=None):
+    """
+    Try to make a simple request else fall back to a proxy.
+    """
+    try:
+        r = requests.get(url, params=params)
+    except:
+        r = cors_proxy_get(url, params=params)
+    return r

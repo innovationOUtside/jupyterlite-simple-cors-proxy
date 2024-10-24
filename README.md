@@ -10,7 +10,7 @@ pip install jupyterlite-simple-cors-proxy
 ## Usage
 
 ```python
-from simple_cors_proxy import cors_proxy
+from simple_cors_proxy import cors_proxy_get, robust_get_request
 
 # Make a request
 url = "https://api.example.com/data"
@@ -23,9 +23,10 @@ data = response.json()
 raw = response.content
 ```
 
+The `robust_get_request()` will first try a simple reuqst, then a proxied request: `robust_get_request(url, params)`
+
 ## Features
 
 - Simple CORS proxy wrapper
-- Requests-like response object
+- Requests response object
 - Support for URL parameters
-- JSON parsing
