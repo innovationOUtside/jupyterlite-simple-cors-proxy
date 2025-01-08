@@ -19,7 +19,7 @@ def cors_proxy_get(url, params=None):
     else:
         full_url = url
 
-    proxy_url = f"https://corsproxy.io/?{quote(full_url)}"
+    proxy_url = f"https://corsproxy.io/{quote(full_url)}"
 
     # Do a simple requests get and
     # just pass through the entire response object
