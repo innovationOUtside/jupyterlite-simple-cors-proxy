@@ -3,10 +3,10 @@ from setuptools import setup, find_packages
 
 setup(
     name="jupyterlite-simple-cors-proxy",
-    version="0.1.3",
+    version="0.1.4",
     packages=find_packages(),
     install_requires=[
-        "requests>=2.32.0",
+        "requests",
     ],
     author="Tony Hirst",
     author_email="tony.hirst@gmail.com",
