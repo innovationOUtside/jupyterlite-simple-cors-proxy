@@ -6,23 +6,24 @@ import io
 import platform
 PLATFORM = platform.system().lower()
 
-def xurl(url, params=None):
-    if PLATFORM=="emscripten":
+def xurl(url, params=None, force=False):
+    """Generate a proxied URL."""
+    if PLATFORM=="emscripten" or force:
         if params:
             url = f"{url}?{urlencode(params)}"
         url = f"https://corsproxy.io/{quote(url)}"
 
     return url
 
-def furl(url, params=None):
-    """Return file like object."""
-    r = cors_proxy_get(url, params)
+def furl(url, params=None, force=False):
+    """Return file like object after calling the proxied URL."""
+    r = cors_proxy_get(url, params, force)
 
     # Return a file-like object from the JSON string
     return io.BytesIO(r.content)
 
 
-def cors_proxy_get(url, params=None):
+def cors_proxy_get(url, params=None, force=False):
     """
     CORS proxy for GET resources with requests-like response.
 
@@ -33,11 +34,12 @@ def cors_proxy_get(url, params=None):
     Returns:
         A requests response object.
     """
-    proxy_url = xurl(url, params)
+    proxy_url = xurl(url, params, force)
 
     # Do a simple requests get and
     # just pass through the entire response object
     return requests.get(proxy_url)
+
 
 def robust_get_request(url, params=None):
     """
