@@ -10,11 +10,22 @@ pip install jupyterlite-simple-cors-proxy
 ## Usage
 
 ```python
-from jupyterlite_simple_cors_proxy.proxy import cors_proxy_get, robust_get_request
+from jupyterlite_simple_cors_proxy.proxy import cors_proxy_get, robust_get_request, furl, xurl
+
+# Set up
+url = "https://api.example.com/data"
+# Optional params
+params = {"key": "value"}
+
+# Get a cross-origin proxied url
+cross_origin_url = xurl(url) # xurl(url, params)
+
+# Get a file like object
+# (Make the request, then create a file like object
+# from the response)
+file_ob = furl(url) # furl(url, params)
 
 # Make a request
-url = "https://api.example.com/data"
-params = {"key": "value"}
 response = cors_proxy_get(url, params)
 
 # Use like requests

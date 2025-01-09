@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="jupyterlite-simple-cors-proxy",
-    version="0.1.4",
+    version="0.1.5",
     packages=find_packages(),
     install_requires=[
         "requests",
@@ -19,5 +19,5 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    python_requires=">=3.6",
+    python_requires=">=3.8",
 )
