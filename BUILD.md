@@ -3,5 +3,5 @@
 ```bash
 python -m build .
 
-twine upload dist/*0.1.2*   
+twine upload dist/*0.1.7*   
 ```
