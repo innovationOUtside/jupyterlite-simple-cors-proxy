@@ -41,3 +41,18 @@ The `robust_get_request()` will first try a simple request, then a proxied reque
 - Simple CORS proxy wrapper
 - Requests response object
 - Support for URL parameters
+
+## `fastf1` cors proxy
+
+A monkey patch for `fastf1` is provided as:
+
+```python
+import fast f1
+from jupyterlite_simple_cors_proxy.fastf1_proxy import enable_cors_proxy
+
+enable_cors_proxy(
+#    domains=["api.formula1.com", "livetiming.formula1.com"],
+#    debug=True,
+#    proxy_url="https://corsproxy.io/",
+)
+```
