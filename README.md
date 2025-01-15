@@ -56,3 +56,32 @@ enable_cors_proxy(
 #    proxy_url="https://corsproxy.io/",
 )
 ```
+
+## `CorsProxy` with cache facility
+
+Via `claude.ai`, the package is now further enriched:
+
+```python
+from simple_cors_proxy.proxy import CorsProxy
+
+# Create a cached proxy instance
+proxy = CorsProxy(use_cache=True, expire_after=3600)  # Cache for 1 hour
+
+# Use furl directly from your proxy instance
+file_like = proxy.furl('https://example.com/somefile.csv')
+
+#----
+import pandas as pd
+from simple_cors_proxy.proxy import CorsProxy
+
+proxy = CorsProxy(use_cache=True)
+file_like = proxy.furl('https://example.com/data.csv')
+df = pd.read_csv(file_like)
+
+#----
+
+from simple_cors_proxy.proxy import create_cached_proxy
+
+proxy = create_cached_proxy(cache_name='my_cache', expire_after=86400)  # Cache for 1 day
+file_like = proxy.furl('https://example.com/somefile.csv')
+```
