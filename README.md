@@ -59,7 +59,9 @@ enable_cors_proxy(
 
 ## `CorsProxy` with cache facility
 
-Via `claude.ai`, the package is now further enriched:
+Via `claude.ai`, the package is now further enriched.
+
+*Note that `pyodide` sqlite canlt write to `/drive` so the cache path dir needs to be something like `/tmp` or a dir created on `/`.*
 
 ```python
 from simple_cors_proxy.proxy import CorsProxy
