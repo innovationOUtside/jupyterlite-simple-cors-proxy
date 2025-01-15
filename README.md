@@ -61,7 +61,9 @@ enable_cors_proxy(
 
 Via `claude.ai`, the package is now further enriched.
 
-*Note that `pyodide` sqlite canlt write to `/drive` so the cache path dir needs to be something like `/tmp` or a dir created on `/`.*
+*Note that `pyodide` sqlite can't write to `/drive` so the cache path dir needs to be something like `/tmp` or a dir created on `/`.*
+
+*I'm not convinced the following works in `pyodide` and `xeus-python` yet - `requests-cache` dependency issues etc. `requests-cache` has requirements `attrs`, `cattrs`,`platformdirs`, `url-normalize`.*
 
 ```python
 from simple_cors_proxy.proxy import CorsProxy
@@ -74,7 +76,7 @@ file_like = proxy.furl('https://example.com/somefile.csv')
 
 #----
 import pandas as pd
-from simple_cors_proxy.proxy import CorsProxy
+from simple_cors_proxy.cacheproxy import CorsProxy
 
 proxy = CorsProxy(use_cache=True)
 file_like = proxy.furl('https://example.com/data.csv')
