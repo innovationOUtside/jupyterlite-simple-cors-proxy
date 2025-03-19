@@ -102,7 +102,7 @@ class CorsProxy:
         Returns:
             A requests response object.
         """
-        proxy_url = self.xurl(url, params, force), proxy
+        proxy_url = self.xurl(url, params, force)
         return self.session.get(proxy_url)
 
     def robust_get_request(
