@@ -8,7 +8,7 @@ from typing import Optional, Union
 
 PLATFORM = platform.system().lower()
 CORS_PROXIES = {
-    "corsproxyio": {"url": "https://corsproxy.io/?url={}", "quote": False},
+    "corsproxyio": {"url": "https://corsproxy.io/?url={}", "quote": True},
     "allorigins": {"url": "https://api.allorigins.win/raw?url={}", "quote": True},
     "none": {"url": "{}", "quote": False},
 }
