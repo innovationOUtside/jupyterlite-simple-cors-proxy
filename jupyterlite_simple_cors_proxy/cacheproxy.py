@@ -41,6 +41,7 @@ class CorsProxy:
         else:
             self.proxy = "corsproxyio"
 
+
     def apply_cors_proxy(self, url, proxy="corsproxyio"):
         """
         Apply a CORS proxy to the given URL.
@@ -60,7 +61,7 @@ class CorsProxy:
         proxy_config = CORS_PROXIES[proxy]
 
         if proxy_config["quote"]:
-            url = proxy_config["url"].format(quote(url))
+            url = proxy_config["url"].format(quote(url, safe=":/?=&"))
         else:
             url = proxy_config["url"].format(url)
 
