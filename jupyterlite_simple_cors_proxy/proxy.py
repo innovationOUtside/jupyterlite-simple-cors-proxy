@@ -7,7 +7,11 @@ import platform
 
 PLATFORM = platform.system().lower()
 CORS_PROXIES = {
-    "corsproxyio": {"url": "https://corsproxy.io/?url={}", "quote": True, "key_param": "key"},
+    "corsproxyio": {
+        "url": "https://corsproxy.io/?url={}",
+        "quote": True,
+        "key_param": "key",
+    },
     "allorigins": {"url": "https://api.allorigins.win/raw?url={}", "quote": True},
     "none": {"url": "{}", "quote": False},
 }

@@ -8,7 +8,11 @@ from typing import Optional, Union
 
 PLATFORM = platform.system().lower()
 CORS_PROXIES = {
-    "corsproxyio": {"url": "https://corsproxy.io/?url={}", "quote": True, "key_param": "key"},
+    "corsproxyio": {
+        "url": "https://corsproxy.io/?url={}",
+        "quote": True,
+        "key_param": "key",
+    },
     "allorigins": {"url": "https://api.allorigins.win/raw?url={}", "quote": True},
     "none": {"url": "{}", "quote": False},
 }
@@ -20,7 +24,7 @@ class CorsProxy:
     def __init__(self, use_cache: bool = False, **cache_kwargs):
         """
         Initialize the CORS proxy.
-        
+
         Args:
             use_cache: Whether to enable request caching
             **cache_kwargs: Arguments passed to requests_cache.CachedSession
@@ -31,15 +35,15 @@ class CorsProxy:
 
         if use_cache:
             import requests_cache
+
             # Set some sensible defaults if not provided
-            if 'cache_name' not in cache_kwargs:
-                cache_kwargs['cache_name'] = 'cors_proxy_cache'
-            if 'expire_after' not in cache_kwargs:
-                cache_kwargs['expire_after'] = 3600  # 1 hour default
+            if "cache_name" not in cache_kwargs:
+                cache_kwargs["cache_name"] = "cors_proxy_cache"
+            if "expire_after" not in cache_kwargs:
+                cache_kwargs["expire_after"] = 3600  # 1 hour default
             self.session = requests_cache.CachedSession(**cache_kwargs)
         else:
             self.session = requests
-
 
     def apply_cors_proxy(self, url, proxy="corsproxyio", api_key: Optional[str] = None):
         """
@@ -115,14 +119,14 @@ class CorsProxy:
     ) -> requests.Response:
         """
         CORS proxy for GET resources with requests-like response.
-        
+
         Args:
             url: The URL to fetch
             params: Query parameters to include
             force: Force using the proxy even on non-emscripten platforms
             proxy: The proxy identifier to use from CORS_PROXIES
             api_key: API key to pass to the proxy, if it supports one
-            
+
         Returns:
             A requests response object.
         """
@@ -154,6 +158,7 @@ xurl = _default_proxy.xurl
 furl = _default_proxy.furl
 cors_proxy_get = _default_proxy.cors_proxy_get
 robust_get_request = _default_proxy.robust_get_request
+
 
 # Convenience function to create a cached proxy
 def create_cached_proxy(**cache_kwargs):
