@@ -42,6 +42,26 @@ The `robust_get_request()` will first try a simple request, then a proxied reque
 - Requests response object
 - Support for URL parameters
 
+## Using an API key with a CORS proxy
+
+Some proxies, such as `corsproxy.io`, support (or require) an API key, passed as `?key=abcd1234&url=...`. Pass it via the `api_key` argument on any of the helper functions:
+
+```python
+from jupyterlite_simple_cors_proxy.proxy import xurl, cors_proxy_get
+
+cross_origin_url = xurl(url, api_key="abcd1234")
+response = cors_proxy_get(url, params, api_key="abcd1234")
+```
+
+Or set a default `api_key` once when using the `CorsProxy` class:
+
+```python
+from jupyterlite_simple_cors_proxy.cacheproxy import CorsProxy
+
+proxy = CorsProxy(api_key="abcd1234")
+response = proxy.cors_proxy_get(url, params)  # api_key applied automatically
+```
+
 ## `fastf1` cors proxy
 
 A monkey patch for `fastf1` is provided as:
@@ -70,6 +90,9 @@ from simple_cors_proxy.proxy import CorsProxy
 
 # Create a cached proxy instance
 proxy = CorsProxy(use_cache=True, expire_after=3600)  # Cache for 1 hour
+
+# Optionally pass an api_key (and/or proxy) to use by default
+proxy = CorsProxy(use_cache=True, expire_after=3600, api_key="abcd1234")
 
 # Use furl directly from your proxy instance
 file_like = proxy.furl('https://example.com/somefile.csv')

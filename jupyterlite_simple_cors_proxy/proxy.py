@@ -7,19 +7,20 @@ import platform
 
 PLATFORM = platform.system().lower()
 CORS_PROXIES = {
-    "corsproxyio": {"url": "https://corsproxy.io/?url={}", "quote": True},
+    "corsproxyio": {"url": "https://corsproxy.io/?url={}", "quote": True, "key_param": "key"},
     "allorigins": {"url": "https://api.allorigins.win/raw?url={}", "quote": True},
     "none": {"url": "{}", "quote": False},
 }
 
 
-def apply_cors_proxy(url, proxy="corsproxyio"):
+def apply_cors_proxy(url, proxy="corsproxyio", api_key=None):
     """
     Apply a CORS proxy to the given URL.
 
     Args:
         url (str): The original URL to proxy
         proxy (str): The proxy identifier to use from CORS_PROXIES
+        api_key (str, optional): API key to pass to the proxy, if it supports one
 
     Returns:
         str: The proxied URL
@@ -36,23 +37,27 @@ def apply_cors_proxy(url, proxy="corsproxyio"):
     else:
         url = proxy_config["url"].format(url)
 
+    key_param = proxy_config.get("key_param")
+    if api_key and key_param:
+        url = f"{url}&{key_param}={quote(api_key)}"
+
     return url
 
 
-def xurl(url, params=None, force=False, proxy="corsproxyio"):
+def xurl(url, params=None, force=False, proxy="corsproxyio", api_key=None):
     """Generate a proxied URL."""
     if PLATFORM == "emscripten" or force:
         if params:
             url = f"{url}?{urlencode(params)}"
         # url = f"https://corsproxy.io/{quote(url)}"
-        url = apply_cors_proxy(url, proxy=proxy)
+        url = apply_cors_proxy(url, proxy=proxy, api_key=api_key)
 
     return url
 
 
-def furl(url, params=None, force=False, proxy="corsproxyio"):
+def furl(url, params=None, force=False, proxy="corsproxyio", api_key=None):
     """Return file like object after calling the proxied URL."""
-    r = cors_proxy_get(url, params, force, proxy=proxy)
+    r = cors_proxy_get(url, params, force, proxy=proxy, api_key=api_key)
 
     # Return a file-like object from the JSON string
     # TO DO - something to consider?
@@ -60,7 +65,7 @@ def furl(url, params=None, force=False, proxy="corsproxyio"):
     return io.BytesIO(r.content)
 
 
-def cors_proxy_get(url, params=None, force=False, proxy="corsproxyio"):
+def cors_proxy_get(url, params=None, force=False, proxy="corsproxyio", api_key=None):
     """
     CORS proxy for GET resources with requests-like response.
 
@@ -71,19 +76,19 @@ def cors_proxy_get(url, params=None, force=False, proxy="corsproxyio"):
     Returns:
         A requests response object.
     """
-    proxy_url = xurl(url, params, force, proxy=proxy)
+    proxy_url = xurl(url, params, force, proxy=proxy, api_key=api_key)
 
     # Do a simple requests get and
     # just pass through the entire response object
     return requests.get(proxy_url)
 
 
-def robust_get_request(url, params=None, proxy="corsproxyio"):
+def robust_get_request(url, params=None, proxy="corsproxyio", api_key=None):
     """
     Try to make a simple request else fall back to a proxy.
     """
     try:
         r = requests.get(url, params=params)
     except:
-        r = cors_proxy_get(url, params=params, proxy=proxy)
+        r = cors_proxy_get(url, params=params, proxy=proxy, api_key=api_key)
     return r

@@ -8,7 +8,7 @@ from typing import Optional, Union
 
 PLATFORM = platform.system().lower()
 CORS_PROXIES = {
-    "corsproxyio": {"url": "https://corsproxy.io/?url={}", "quote": True},
+    "corsproxyio": {"url": "https://corsproxy.io/?url={}", "quote": True, "key_param": "key"},
     "allorigins": {"url": "https://api.allorigins.win/raw?url={}", "quote": True},
     "none": {"url": "{}", "quote": False},
 }
@@ -26,6 +26,9 @@ class CorsProxy:
             **cache_kwargs: Arguments passed to requests_cache.CachedSession
                           (e.g., cache_name, backend, expire_after)
         """
+        self.proxy = cache_kwargs.pop("proxy", "corsproxyio")
+        self.api_key = cache_kwargs.pop("api_key", None)
+
         if use_cache:
             import requests_cache
             # Set some sensible defaults if not provided
@@ -36,19 +39,16 @@ class CorsProxy:
             self.session = requests_cache.CachedSession(**cache_kwargs)
         else:
             self.session = requests
-        if "proxy" in cache_kwargs:
-            self.proxy = cache_kwargs["proxy"]
-        else:
-            self.proxy = "corsproxyio"
 
 
-    def apply_cors_proxy(self, url, proxy="corsproxyio"):
+    def apply_cors_proxy(self, url, proxy="corsproxyio", api_key: Optional[str] = None):
         """
         Apply a CORS proxy to the given URL.
 
         Args:
             url (str): The original URL to proxy
             proxy (str): The proxy identifier to use from CORS_PROXIES
+            api_key (str, optional): API key to pass to the proxy, if it supports one
 
         Returns:
             str: The proxied URL
@@ -65,6 +65,12 @@ class CorsProxy:
         else:
             url = proxy_config["url"].format(url)
 
+        key_param = proxy_config.get("key_param")
+        if api_key is None:
+            api_key = self.api_key
+        if api_key and key_param:
+            url = f"{url}&{key_param}={quote(api_key, safe='')}"
+
         return url
 
     def xurl(
@@ -73,6 +79,7 @@ class CorsProxy:
         params: Optional[dict] = None,
         force: bool = False,
         proxy: str = "",
+        api_key: Optional[str] = None,
     ) -> str:
         """Generate a proxied URL."""
         if PLATFORM == "emscripten" or force:
@@ -81,17 +88,31 @@ class CorsProxy:
             # url = f"https://corsproxy.io/{quote(url)}"
             if not proxy:
                 proxy = self.proxy
-            url = self.apply_cors_proxy(url, proxy=proxy)
+            url = self.apply_cors_proxy(url, proxy=proxy, api_key=api_key)
         return url
 
-    def furl(self, url: str, params: Optional[dict] = None, force: bool = False, proxy: str = "") -> io.BytesIO:
+    def furl(
+        self,
+        url: str,
+        params: Optional[dict] = None,
+        force: bool = False,
+        proxy: str = "",
+        api_key: Optional[str] = None,
+    ) -> io.BytesIO:
         """Return file like object after calling the proxied URL."""
-        r = self.cors_proxy_get(url, params, force, proxy)
+        r = self.cors_proxy_get(url, params, force, proxy, api_key=api_key)
         # TO DO - something to consider?
         # https://simonwillison.net/2025/Jan/31/save-memory-with-bytesio/
         return io.BytesIO(r.content)
 
-    def cors_proxy_get(self, url: str, params: Optional[dict] = None, force: bool = False, proxy: str = "corsproxyio") -> requests.Response:
+    def cors_proxy_get(
+        self,
+        url: str,
+        params: Optional[dict] = None,
+        force: bool = False,
+        proxy: str = "",
+        api_key: Optional[str] = None,
+    ) -> requests.Response:
         """
         CORS proxy for GET resources with requests-like response.
         
@@ -99,15 +120,21 @@ class CorsProxy:
             url: The URL to fetch
             params: Query parameters to include
             force: Force using the proxy even on non-emscripten platforms
+            proxy: The proxy identifier to use from CORS_PROXIES
+            api_key: API key to pass to the proxy, if it supports one
             
         Returns:
             A requests response object.
         """
-        proxy_url = self.xurl(url, params, force)
+        proxy_url = self.xurl(url, params, force, proxy, api_key=api_key)
         return self.session.get(proxy_url)
 
     def robust_get_request(
-        self, url: str, params: Optional[dict] = None, proxy: str = ""
+        self,
+        url: str,
+        params: Optional[dict] = None,
+        proxy: str = "",
+        api_key: Optional[str] = None,
     ) -> requests.Response:
         """
         Try to make a simple request else fall back to a proxy.
@@ -115,7 +142,7 @@ class CorsProxy:
         try:
             r = self.session.get(url, params=params)
         except:
-            r = self.cors_proxy_get(url, params=params, proxy=proxy)
+            r = self.cors_proxy_get(url, params=params, proxy=proxy, api_key=api_key)
         return r
 
 
